@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نقطة اتصال FFFp</title>
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b2b3f 0%, #1b4f6e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+        .card {
+            background: white;
+            border-radius: 30px;
+            padding: 25px 20px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1b4f6e;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+        .badge {
+            background: #ffb74d;
+            color: #0b2b3f;
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .section {
+            background: #f5f9ff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-right: 5px solid #ffb74d;
+        }
+        .section h2 {
+            color: #0b2b3f;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-box {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        .label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        .value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1b4f6e;
+            direction: ltr;
+            word-break: break-all;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 5px;
+        }
+        .btn {
+            background: #ffb74d;
+            border: none;
+            color: #0b2b3f;
+            padding: 15px 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 15px;
+            width: 100%;
+            cursor: pointer;
+            margin: 15px 0 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #ffa726;
+            transform: scale(1.02);
+        }
+        .btn-small {
+            background: #e0e0e0;
+            padding: 8px 15px;
+            font-size: 1rem;
+            width: auto;
+            margin: 5px;
+        }
+        .qr-placeholder {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 15px;
+        }
+        .request-list {
+            background: #fff3e0;
+            border-radius: 15px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .request-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #ffb74d;
+        }
+        .request-name {
+            font-weight: bold;
+            color: #1b4f6e;
+        }
+        .request-time {
+            color: #666;
+            font-size: 0.8rem;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 0.8rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📡 FFFp Hotspot</h1>
+        <div style="text-align: center;"><span class="badge">اتصال سريع وآمن</span></div>
+
+        <!-- عرض بيانات الاتصال من Firebase -->
+        <div id="loading" class="loading">جاري تحميل البيانات...</div>
+
+        <div id="content" style="display: none;">
+            <!-- بيانات الشبكة المحلية -->
+            <div class="section">
+                <h2>📱 للقريبين (واي فاي)</h2>
+                <div class="info-box">
+                    <div class="label">📶 اسم الشبكة (SSID)</div>
+                    <div class="value" id="networkName">---</div>
+                </div>
+                <div class="info-box">
+                    <div class="label">🔑 كلمة المرور</div>
+                    <div class="value" id="networkPassword">---</div>
+                </div>
+                <div id="qrContainer" class="qr-placeholder">
+                    <!-- سيتم إنشاء QR هنا -->
+                </div>
+                <button class="btn" onclick="openWifiSettings()">⚙️ فتح إعدادات الواي فاي</button>
+            </div>
+
+            <!-- للبعيدين (عبر الإنترنت) -->
+            <div class="section">
+                <h2>🌍 للبعيدين (VPN)</h2>
+                <div class="info-box">
+                    <div class="label">🔗 مفتاح Tailscale (اضغط للنسخ)</div>
+                    <div class="value" id="tailscaleKey" onclick="copyTailscaleKey()" style="cursor: pointer;">---</div>
+                </div>
+                <div style="font-size: 0.9rem; margin-top: 10px;">
+                    <p>📋 خطوات سريعة:</p>
+                    <ol style="margin-right: 20px;">
+                        <li>حمّل تطبيق Tailscale</li>
+                        <li>استخدم المفتاح أعلاه للانضمام</li>
+                        <li>فعّل "Exit Node" واختر جهازي</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- زر الاتصال (طلب الاسم) -->
+            <div class="section" style="background: #e8f5e9; border-right-color: #4caf50;">
+                <h2>🟢 طلب اتصال جديد</h2>
+                <button class="btn" onclick="requestConnection()">🚀 اضغط للاتصال</button>
+                <p style="margin-top: 10px; font-size: 0.9rem;">سيطلب منك إدخال اسمك (مثل FFFp-1، FFFp-2...).</p>
+            </div>
+
+            <!-- قائمة آخر الطلبات -->
+            <div class="section">
+                <h2>📋 آخر طلبات الاتصال</h2>
+                <div id="requestsList" class="request-list">
+                    <p class="loading">جاري تحميل الطلبات...</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                آخر تحديث للبيانات: <span id="lastUpdated">---</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إعدادات Firebase (خاصة بك)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCYnCu8VkoOAOhnJTZBVmSGcPSeKB4vCAM",
+            authDomain: "tygggfs.firebaseapp.com",
+            databaseURL: "https://tygggfs-default-rtdb.firebaseio.com", // تأكد من الرابط الصحيح
+            projectId: "tygggfs",
+            storageBucket: "tygggfs.firebasestorage.app",
+            messagingSenderId: "532770652661",
+            appId: "1:532770652661:web:b6a6722f184a3d70cf60bc",
+            measurementId: "G-HC88Y95PHL"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // مراجع Firebase
+        const connectionRef = database.ref('connection');
+        const requestsRef = database.ref('requests');
+
+        // عناصر الصفحة
+        const loadingEl = document.getElementById('loading');
+        const contentEl = document.getElementById('content');
+        const networkNameEl = document.getElementById('networkName');
+        const networkPasswordEl = document.getElementById('networkPassword');
+        const tailscaleKeyEl = document.getElementById('tailscaleKey');
+        const lastUpdatedEl = document.getElementById('lastUpdated');
+        const requestsListEl = document.getElementById('requestsList');
+        const qrContainer = document.getElementById('qrContainer');
+
+        // الاستماع للتغييرات في بيانات الاتصال
+        connectionRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+
+                networkNameEl.innerText = data.networkName || 'غير محدد';
+                networkPasswordEl.innerText = data.password || 'غير محدد';
+                tailscaleKeyEl.innerText = data.tailscaleKey || 'غير متوفر';
+                lastUpdatedEl.innerText = data.lastUpdated || 'غير معروف';
+
+                // إنشاء رمز QR للشبكة المحلية
+                generateQRCode(data.networkName, data.password);
+            }
+        });
+
+        // الاستماع لآخر 10 طلبات (مرتبة تنازلياً)
+        requestsRef.orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                let html = '';
+                const requests = [];
+                snapshot.forEach(child => {
+                    requests.push(child.val());
+                });
+                // عرض من الأحدث إلى الأقدم
+                requests.reverse().forEach(req => {
+                    html += `
+                        <div class="request-item">
+                            <span class="request-name">${req.name}</span>
+                            <span class="request-time">${new Date(req.timestamp).toLocaleString('ar-EG')}</span>
+                        </div>
+                    `;
+                });
+                requestsListEl.innerHTML = html;
+            } else {
+                requestsListEl.innerHTML = '<p style="color: #666;">لا توجد طلبات بعد</p>';
+            }
+        });
+
+        // دالة إنشاء رمز QR
+        function generateQRCode(ssid, password) {
+            if (!ssid || !password) return;
+            const wifiString = `WIFI:S:${ssid};T:WPA;P:${password};;`;
+            qrContainer.innerHTML = `
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(wifiString)}" 
+                     alt="QR Code" style="border-radius: 10px;">
+                <p style="color: #666; margin-top: 10px;">📷 امسح الرمز للاتصال التلقائي</p>
+            `;
+        }
+
+        // طلب اتصال جديد
+        function requestConnection() {
+            const name = prompt('الرجاء إدخال اسمك (مثال: FFFp-1, FFFp-2):');
+            if (!name) return; // المستخدم ألغى
+
+            // حفظ الطلب في Firebase
+            const newRequestRef = requestsRef.push();
+            newRequestRef.set({
+                name: name,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent // اختياري
+            }).then(() => {
+                alert(`✅ تم تسجيل طلبك باسم "${name}". يمكنك الآن الاتصال باستخدام البيانات أعلاه.`);
+            }).catch((error) => {
+                alert('❌ حدث خطأ: ' + error.message);
+            });
+        }
+
+        // فتح إعدادات الواي فاي (لأندرويد و iOS)
+        function openWifiSettings() {
+            window.location.href = "intent://#Intent;action=android.settings.WIFI_SETTINGS;end;";
+            setTimeout(() => {
+                window.location.href = "App-Prefs:root=WIFI";
+            }, 500);
+        }
+
+        // نسخ مفتاح Tailscale
+        function copyTailscaleKey() {
+            const key = tailscaleKeyEl.innerText;
+            if (key && key !== 'غير متوفر') {
+                navigator.clipboard.writeText(key).then(() => {
+                    alert('✅ تم نسخ المفتاح!');
+                }).catch(() => {
+                    alert('❌ تعذر النسخ، يمكنك تحديده يدوياً.');
+                });
+            } else {
+                alert('❌ المفتاح غير متوفر');
+            }
+        }
+    </script>
+</body>
+  </html>
