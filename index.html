@@ -8,138 +8,27 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        /* نفس التنسيقات السابقة */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(145deg, #0b2b3f 0%, #1b4f6e 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-        .card {
-            background: white;
-            border-radius: 30px;
-            padding: 25px 20px;
-            max-width: 550px;
-            width: 100%;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-        }
-        h1 {
-            color: #1b4f6e;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2rem;
-        }
-        .badge {
-            background: #ffb74d;
-            color: #0b2b3f;
-            padding: 5px 15px;
-            border-radius: 50px;
-            display: inline-block;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .section {
-            background: #f5f9ff;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-right: 5px solid #ffb74d;
-        }
-        .section h2 {
-            color: #0b2b3f;
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .info-box {
-            background: white;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-        }
-        .label {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-        .value {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #1b4f6e;
-            direction: ltr;
-            word-break: break-all;
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 5px;
-        }
-        .btn {
-            background: #ffb74d;
-            border: none;
-            color: #0b2b3f;
-            padding: 15px 25px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 15px;
-            width: 100%;
-            cursor: pointer;
-            margin: 15px 0 5px;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            background: #ffa726;
-            transform: scale(1.02);
-        }
-        .qr-placeholder {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            background: #f0f0f0;
-            border-radius: 15px;
-        }
-        .request-list {
-            background: #fff3e0;
-            border-radius: 15px;
-            padding: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .request-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            border-bottom: 1px solid #ffb74d;
-        }
-        .request-name {
-            font-weight: bold;
-            color: #1b4f6e;
-        }
-        .request-time {
-            color: #666;
-            font-size: 0.8rem;
-        }
-        .loading {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-        }
-        .footer {
-            text-align: center;
-            color: #999;
-            font-size: 0.8rem;
-            margin-top: 15px;
-        }
+        /* نفس التنسيقات السابقة مع إضافة أنماط للأخطاء */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: linear-gradient(145deg, #0b2b3f 0%, #1b4f6e 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; }
+        .card { background: white; border-radius: 30px; padding: 25px 20px; max-width: 550px; width: 100%; box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
+        h1 { color: #1b4f6e; text-align: center; margin-bottom: 10px; font-size: 2rem; }
+        .badge { background: #ffb74d; color: #0b2b3f; padding: 5px 15px; border-radius: 50px; display: inline-block; margin-bottom: 20px; font-weight: bold; }
+        .section { background: #f5f9ff; border-radius: 20px; padding: 20px; margin-bottom: 20px; border-right: 5px solid #ffb74d; }
+        .section h2 { color: #0b2b3f; font-size: 1.4rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .info-box { background: white; border-radius: 15px; padding: 15px; margin: 10px 0; border: 1px solid #ddd; }
+        .label { color: #666; font-size: 0.9rem; margin-bottom: 5px; }
+        .value { font-size: 1.3rem; font-weight: bold; color: #1b4f6e; direction: ltr; word-break: break-all; background: #f0f0f0; padding: 10px; border-radius: 10px; margin-top: 5px; }
+        .btn { background: #ffb74d; border: none; color: #0b2b3f; padding: 15px 25px; font-size: 1.2rem; font-weight: bold; border-radius: 15px; width: 100%; cursor: pointer; margin: 15px 0 5px; transition: all 0.3s; }
+        .btn:hover { background: #ffa726; transform: scale(1.02); }
+        .qr-placeholder { text-align: center; margin: 20px 0; padding: 20px; background: #f0f0f0; border-radius: 15px; }
+        .request-list { background: #fff3e0; border-radius: 15px; padding: 15px; max-height: 200px; overflow-y: auto; }
+        .request-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #ffb74d; }
+        .request-name { font-weight: bold; color: #1b4f6e; }
+        .request-time { color: #666; font-size: 0.8rem; }
+        .loading { text-align: center; color: #666; padding: 20px; }
+        .error { text-align: center; color: #d32f2f; background: #ffcdd2; padding: 20px; border-radius: 15px; margin: 20px 0; }
+        .footer { text-align: center; color: #999; font-size: 0.8rem; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -147,16 +36,14 @@
         <h1>📡 FFFp Hotspot</h1>
         <div style="text-align: center;"><span class="badge">اتصال سریع و آمن</span></div>
 
-        <!-- حالة التحميل -->
         <div id="loading" class="loading">
             ⏳ جاري تحميل البيانات...
-            <br>
-            <small style="color: #999;">إذا استمرت المشكلة، تأكد من اتصال Firebase</small>
         </div>
 
-        <!-- المحتوى الرئيسي (سيظهر بعد التحميل) -->
+        <div id="error" class="error" style="display: none;"></div>
+
         <div id="content" style="display: none;">
-            <!-- بيانات الشبكة المحلية -->
+            <!-- محتوى الشبكة المحلية -->
             <div class="section">
                 <h2>📱 للقريبين (واي فاي)</h2>
                 <div class="info-box">
@@ -167,56 +54,43 @@
                     <div class="label">🔑 كلمة المرور</div>
                     <div class="value" id="networkPassword">---</div>
                 </div>
-                <div id="qrContainer" class="qr-placeholder">
-                    <!-- سيتم إنشاء QR هنا -->
-                </div>
+                <div id="qrContainer" class="qr-placeholder"></div>
                 <button class="btn" onclick="openWifiSettings()">⚙️ فتح إعدادات الواي فاي</button>
             </div>
 
-            <!-- للبعيدين (عبر الإنترنت) -->
+            <!-- للبعيدين -->
             <div class="section">
                 <h2>🌍 للبعيدين (VPN)</h2>
                 <div class="info-box">
                     <div class="label">🔗 مفتاح Tailscale (اضغط للنسخ)</div>
                     <div class="value" id="tailscaleKey" onclick="copyTailscaleKey()" style="cursor: pointer;">---</div>
                 </div>
-                <div style="font-size: 0.9rem; margin-top: 10px;">
-                    <p>📋 خطوات سريعة:</p>
-                    <ol style="margin-right: 20px;">
-                        <li>حمّل تطبيق Tailscale</li>
-                        <li>استخدم المفتاح أعلاه للانضمام</li>
-                        <li>فعّل "Exit Node" واختر جهازي</li>
-                    </ol>
-                </div>
             </div>
 
-            <!-- زر الاتصال (طلب الاسم) -->
+            <!-- طلب اتصال -->
             <div class="section" style="background: #e8f5e9; border-right-color: #4caf50;">
                 <h2>🟢 طلب اتصال جديد</h2>
                 <button class="btn" onclick="requestConnection()">🚀 اضغط للاتصال</button>
-                <p style="margin-top: 10px; font-size: 0.9rem;">سيطلب منك إدخال اسمك (مثل FFFp-1، FFFp-2...).</p>
             </div>
 
-            <!-- قائمة آخر الطلبات -->
+            <!-- قائمة الطلبات -->
             <div class="section">
                 <h2>📋 آخر طلبات الاتصال</h2>
-                <div id="requestsList" class="request-list">
-                    <p class="loading">جاري تحميل الطلبات...</p>
-                </div>
+                <div id="requestsList" class="request-list"></div>
             </div>
 
             <div class="footer">
-                آخر تحديث للبيانات: <span id="lastUpdated">---</span>
+                آخر تحديث: <span id="lastUpdated">---</span>
             </div>
         </div>
     </div>
 
     <script>
-        // 🔴 هام: استبدل رابط قاعدة البيانات بالرابط الصحيح من Firebase Console
+        // 🔴 استبدل هذا الرابط بالرابط الصحيح من Firebase Console
         const firebaseConfig = {
             apiKey: "AIzaSyCYnCu8VkoOAOhnJTZBVmSGcPSeKB4vCAM",
             authDomain: "tygggfs.firebaseapp.com",
-            databaseURL: "https://tygggfs-default-rtdb.firebaseio.com", // ⚠️ غير هذا الرابط
+            databaseURL: "https://tygggfs-default-rtdb.firebaseio.com", // <-- غير هذا الرابط
             projectId: "tygggfs",
             storageBucket: "tygggfs.firebasestorage.app",
             messagingSenderId: "532770652661",
@@ -224,13 +98,14 @@
             measurementId: "G-HC88Y95PHL"
         };
 
-        // تهيئة Firebase
+        // محاولة تهيئة Firebase
         try {
             firebase.initializeApp(firebaseConfig);
-            console.log("✅ Firebase initialized");
+            console.log("Firebase initialized");
         } catch (e) {
-            console.error("❌ Firebase init error:", e);
-            document.getElementById('loading').innerHTML = "❌ خطأ في تهيئة Firebase. تحقق من الإعدادات.";
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').innerText = '❌ خطأ في تهيئة Firebase: ' + e.message;
         }
 
         const database = firebase.database();
@@ -239,6 +114,7 @@
 
         // عناصر الصفحة
         const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
         const contentEl = document.getElementById('content');
         const networkNameEl = document.getElementById('networkName');
         const networkPasswordEl = document.getElementById('networkPassword');
@@ -247,7 +123,7 @@
         const requestsListEl = document.getElementById('requestsList');
         const qrContainer = document.getElementById('qrContainer');
 
-        // الاستماع للتغييرات في بيانات الاتصال
+        // الاستماع لبيانات الاتصال
         connectionRef.on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -259,19 +135,21 @@
                 tailscaleKeyEl.innerText = data.tailscaleKey || 'غير متوفر';
                 lastUpdatedEl.innerText = data.lastUpdated || 'غير معروف';
 
-                // إنشاء رمز QR
                 if (data.networkName && data.password) {
                     generateQRCode(data.networkName, data.password);
                 }
             } else {
-                loadingEl.innerHTML = "⚠️ لا توجد بيانات في Firebase. أضف بيانات يدوياً.";
+                loadingEl.style.display = 'none';
+                errorEl.style.display = 'block';
+                errorEl.innerText = '⚠️ لا توجد بيانات في Firebase. الرجاء إضافة بيانات يدوياً.';
             }
         }, (error) => {
-            console.error("Firebase error:", error);
-            loadingEl.innerHTML = "❌ خطأ في الاتصال بقاعدة البيانات. تحقق من الرابط.";
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorEl.innerText = '❌ خطأ في قراءة قاعدة البيانات: ' + error.message;
         });
 
-        // الاستماع لآخر 10 طلبات
+        // الاستماع للطلبات
         requestsRef.orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
             if (snapshot.exists()) {
                 let html = '';
@@ -294,7 +172,6 @@
             }
         });
 
-        // دالة إنشاء رمز QR
         function generateQRCode(ssid, password) {
             if (!ssid || !password) return;
             const wifiString = `WIFI:S:${ssid};T:WPA;P:${password};;`;
@@ -305,7 +182,6 @@
             `;
         }
 
-        // طلب اتصال جديد
         function requestConnection() {
             const name = prompt('الرجاء إدخال اسمك (مثال: FFFp-1, FFFp-2):');
             if (!name) return;
@@ -322,7 +198,6 @@
             });
         }
 
-        // فتح إعدادات الواي فاي
         function openWifiSettings() {
             window.location.href = "intent://#Intent;action=android.settings.WIFI_SETTINGS;end;";
             setTimeout(() => {
@@ -330,7 +205,6 @@
             }, 500);
         }
 
-        // نسخ مفتاح Tailscale
         function copyTailscaleKey() {
             const key = tailscaleKeyEl.innerText;
             if (key && key !== 'غير متوفر') {
