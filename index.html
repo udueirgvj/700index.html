@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نقطة اتصال FFFp</title>
-    <!-- Firebase SDK (compat) -->
+    <title>FFFp Hotspot</title>
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
+        /* نفس التنسيقات السابقة */
         * {
             margin: 0;
             padding: 0;
@@ -100,13 +101,6 @@
             background: #ffa726;
             transform: scale(1.02);
         }
-        .btn-small {
-            background: #e0e0e0;
-            padding: 8px 15px;
-            font-size: 1rem;
-            width: auto;
-            margin: 5px;
-        }
         .qr-placeholder {
             text-align: center;
             margin: 20px 0;
@@ -151,11 +145,16 @@
 <body>
     <div class="card">
         <h1>📡 FFFp Hotspot</h1>
-        <div style="text-align: center;"><span class="badge">اتصال سريع وآمن</span></div>
+        <div style="text-align: center;"><span class="badge">اتصال سریع و آمن</span></div>
 
-        <!-- عرض بيانات الاتصال من Firebase -->
-        <div id="loading" class="loading">جاري تحميل البيانات...</div>
+        <!-- حالة التحميل -->
+        <div id="loading" class="loading">
+            ⏳ جاري تحميل البيانات...
+            <br>
+            <small style="color: #999;">إذا استمرت المشكلة، تأكد من اتصال Firebase</small>
+        </div>
 
+        <!-- المحتوى الرئيسي (سيظهر بعد التحميل) -->
         <div id="content" style="display: none;">
             <!-- بيانات الشبكة المحلية -->
             <div class="section">
@@ -213,11 +212,11 @@
     </div>
 
     <script>
-        // إعدادات Firebase (خاصة بك)
+        // 🔴 هام: استبدل رابط قاعدة البيانات بالرابط الصحيح من Firebase Console
         const firebaseConfig = {
             apiKey: "AIzaSyCYnCu8VkoOAOhnJTZBVmSGcPSeKB4vCAM",
             authDomain: "tygggfs.firebaseapp.com",
-            databaseURL: "https://tygggfs-default-rtdb.firebaseio.com", // تأكد من الرابط الصحيح
+            databaseURL: "https://tygggfs-default-rtdb.firebaseio.com", // ⚠️ غير هذا الرابط
             projectId: "tygggfs",
             storageBucket: "tygggfs.firebasestorage.app",
             messagingSenderId: "532770652661",
@@ -226,10 +225,15 @@
         };
 
         // تهيئة Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("✅ Firebase initialized");
+        } catch (e) {
+            console.error("❌ Firebase init error:", e);
+            document.getElementById('loading').innerHTML = "❌ خطأ في تهيئة Firebase. تحقق من الإعدادات.";
+        }
 
-        // مراجع Firebase
+        const database = firebase.database();
         const connectionRef = database.ref('connection');
         const requestsRef = database.ref('requests');
 
@@ -255,12 +259,19 @@
                 tailscaleKeyEl.innerText = data.tailscaleKey || 'غير متوفر';
                 lastUpdatedEl.innerText = data.lastUpdated || 'غير معروف';
 
-                // إنشاء رمز QR للشبكة المحلية
-                generateQRCode(data.networkName, data.password);
+                // إنشاء رمز QR
+                if (data.networkName && data.password) {
+                    generateQRCode(data.networkName, data.password);
+                }
+            } else {
+                loadingEl.innerHTML = "⚠️ لا توجد بيانات في Firebase. أضف بيانات يدوياً.";
             }
+        }, (error) => {
+            console.error("Firebase error:", error);
+            loadingEl.innerHTML = "❌ خطأ في الاتصال بقاعدة البيانات. تحقق من الرابط.";
         });
 
-        // الاستماع لآخر 10 طلبات (مرتبة تنازلياً)
+        // الاستماع لآخر 10 طلبات
         requestsRef.orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
             if (snapshot.exists()) {
                 let html = '';
@@ -268,12 +279,12 @@
                 snapshot.forEach(child => {
                     requests.push(child.val());
                 });
-                // عرض من الأحدث إلى الأقدم
                 requests.reverse().forEach(req => {
+                    const date = new Date(req.timestamp);
                     html += `
                         <div class="request-item">
                             <span class="request-name">${req.name}</span>
-                            <span class="request-time">${new Date(req.timestamp).toLocaleString('ar-EG')}</span>
+                            <span class="request-time">${date.toLocaleString('ar-EG')}</span>
                         </div>
                     `;
                 });
@@ -297,22 +308,21 @@
         // طلب اتصال جديد
         function requestConnection() {
             const name = prompt('الرجاء إدخال اسمك (مثال: FFFp-1, FFFp-2):');
-            if (!name) return; // المستخدم ألغى
+            if (!name) return;
 
-            // حفظ الطلب في Firebase
             const newRequestRef = requestsRef.push();
             newRequestRef.set({
                 name: name,
                 timestamp: Date.now(),
-                userAgent: navigator.userAgent // اختياري
+                userAgent: navigator.userAgent
             }).then(() => {
-                alert(`✅ تم تسجيل طلبك باسم "${name}". يمكنك الآن الاتصال باستخدام البيانات أعلاه.`);
+                alert(`✅ تم تسجيل طلبك باسم "${name}".`);
             }).catch((error) => {
                 alert('❌ حدث خطأ: ' + error.message);
             });
         }
 
-        // فتح إعدادات الواي فاي (لأندرويد و iOS)
+        // فتح إعدادات الواي فاي
         function openWifiSettings() {
             window.location.href = "intent://#Intent;action=android.settings.WIFI_SETTINGS;end;";
             setTimeout(() => {
@@ -335,4 +345,4 @@
         }
     </script>
 </body>
-  </html>
+</html>
